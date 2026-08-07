@@ -12,7 +12,7 @@ Requires **Pd 0.55 or newer**. Built with [pd-lib-builder](https://github.com/pu
 
 ## Layout
 
-```
+```directory
 rose/
 ├── pd-lib-builder/     # git submodule (build system)
 ├── Makefile            # pd-lib-builder wrapper
@@ -54,4 +54,5 @@ To test without installing, just open a patch saved in this directory — Pd
 searches the patch's own folder first.
 
 ## License
+
 MIT (c) 2026 Arran Lyon
