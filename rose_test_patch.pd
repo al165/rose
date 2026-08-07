@@ -1,5 +1,5 @@
 #N canvas 588 137 852 459 12;
-#X obj 34 197 display-trace 10 10;
+#X obj 34 183 display-trace 10 10;
 #X msg 34 76 hello;
 #X floatatom 89 76 5 0 0 0 - - - 0;
 #X msg 91 151 something long lines;
@@ -12,7 +12,7 @@
 #X msg 412 68 hello 123;
 #X msg 430 95 foo abc;
 #X msg 445 126 hello 0;
-#X obj 412 330 display-trace 16 1000;
+#X obj 412 330 display-trace 16 16;
 #X msg 459 158 foo 12 34;
 #X msg 465 194 asdf;
 #X connect 1 0 0 0;

@@ -11,10 +11,6 @@
 #define STATE_MINCHR 4
 #define STATE_MINLINE 1 /* never shorter than this */
 
-#define STATE_FILL 0xFCFCFC
-#define STATE_BORDER 0x000000
-#define STATE_BORDER_SELECTED 0xFF0000
-
 static t_class *state_class;
 
 typedef struct _state_entry
@@ -61,8 +57,8 @@ static void state_set(t_state *x, t_symbol *key, const char *value)
 	if (x->x_n == x->x_alloc)
 	{
 		int newalloc = (x->x_alloc ? x->x_alloc * 2 : 8);
-		x->x_entries =
-			(t_state_entry *)resizebytes(x->x_entries, x->x_alloc * sizeof(t_state_entry), newalloc * sizeof(t_state_entry));
+		x->x_entries = (t_state_entry *)resizebytes(x->x_entries, x->x_alloc * sizeof(t_state_entry),
+													newalloc * sizeof(t_state_entry));
 		x->x_alloc = newalloc;
 	}
 
@@ -144,8 +140,8 @@ static void state_draw_config(t_state *x, t_glist *glist)
 	rose_maketag(x, "BASE", tag, sizeof(tag));
 	pdgui_vmess(0, "crs iiii", canvas, "coords", tag, x1, y1, x1 + w, y1 + h);
 
-	unsigned int outline = x->x_selected ? STATE_BORDER_SELECTED : STATE_BORDER;
-	pdgui_vmess(0, "crs rk rk", canvas, "itemconfigure", tag, "-fill", (unsigned int)STATE_FILL, "-outline",
+	unsigned int outline = x->x_selected ? ROSE_BORDER_SELECTED : ROSE_BORDER;
+	pdgui_vmess(0, "crs rk rk", canvas, "itemconfigure", tag, "-fill", (unsigned int)ROSE_FILL, "-outline",
 				(unsigned int)outline);
 
 	SETSYMBOL(fontatoms + 0, gensym(sys_font));
@@ -307,17 +303,17 @@ void *state_new(t_symbol *s, int argc, t_atom *argv)
 	return x;
 }
 
-static const t_widgetbehavior state_widgetbehavior = {
-	state_getrect, state_displace, state_select, NULL, state_delete, state_vis, NULL};
+static const t_widgetbehavior state_widgetbehavior = {state_getrect, state_displace, state_select, NULL,
+													  state_delete,	 state_vis,		 NULL};
 
 void state_setup(void)
 {
-	state_class = class_new(gensym("state"),		 ///< object name
-							 (t_newmethod)state_new, ///< constructor
-							 (t_method)state_free,	 ///< destructor
-							 sizeof(t_state),		 ///< size of data space
-							 CLASS_DEFAULT,			 ///< Class flags
-							 A_GIMME, 0);
+	state_class = class_new(gensym("state"),		///< object name
+							(t_newmethod)state_new, ///< constructor
+							(t_method)state_free,	///< destructor
+							sizeof(t_state),		///< size of data space
+							CLASS_DEFAULT,			///< Class flags
+							A_GIMME, 0);
 
 	class_addanything(state_class, state_anything);
 	class_addmethod(state_class, (t_method)state_clear, gensym("clear"), 0);

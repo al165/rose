@@ -13,10 +13,6 @@
 #define DISPLAYTRACE_DEFMAX 16		   /* default scrollback, 0 == unlimited */
 #define DISPLAYTRACE_DEFTIMEOUT 1000.0 /* default timeout in ms */
 
-#define DISPLAYTRACE_FILL 0xFCFCFC
-#define DISPLAYTRACE_BORDER 0x000000
-#define DISPLAYTRACE_BORDER_SELECTED 0xFF0000
-
 static t_class *displaytrace_class;
 
 typedef struct _displaytrace
@@ -123,8 +119,8 @@ static void displaytrace_draw_config(t_displaytrace *x, t_glist *glist)
 	rose_maketag(x, "BASE", tag, sizeof(tag));
 	pdgui_vmess(0, "crs iiii", canvas, "coords", tag, x1, y1, x1 + w, y1 + h);
 
-	unsigned int outline = x->x_selected ? DISPLAYTRACE_BORDER_SELECTED : DISPLAYTRACE_BORDER;
-	pdgui_vmess(0, "crs rk rk", canvas, "itemconfigure", tag, "-fill", (unsigned int)DISPLAYTRACE_FILL, "-outline",
+	unsigned int outline = x->x_selected ? ROSE_BORDER_SELECTED : ROSE_BORDER;
+	pdgui_vmess(0, "crs rk rk", canvas, "itemconfigure", tag, "-fill", (unsigned int)ROSE_FILL, "-outline",
 				(unsigned int)outline);
 
 	SETSYMBOL(fontatoms + 0, gensym(sys_font));
