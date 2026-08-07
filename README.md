@@ -1,8 +1,8 @@
 # rose
 
-A small collection of useful pd objects.
+A small collection of useful [PureData](https://puredata.info/) objects.
 
-Requires **Pd 0.55 or newer**.
+Requires **Pd 0.55 or newer**. Built with [pd-lib-builder](https://github.com/pure-data/pd-lib-builder).
 
 ## List of objects
 
@@ -47,12 +47,11 @@ To generate `compile_commands.json`, runs `$ bear -- make`
 make install objectsdir=$HOME/.local/lib/pd/extra
 ```
 
-Then in Pd: _Preferences → Path_ should include `~/.local/lib/pd/extra`, and
+Then in Pd: _Preferences -> Path_ should include `~/.local/lib/pd/extra`, and
 `~/.local/lib/pd/extra/rose` will be found automatically.
 
 To test without installing, just open a patch saved in this directory — Pd
 searches the patch's own folder first.
 
 ## License
-
-Do as you like. The Pd headers themselves are BSD-3-Clause.
+MIT (c) 2026 Arran Lyon
