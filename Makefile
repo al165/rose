@@ -15,7 +15,8 @@ lib.name = rose
 # one .c file per object class; pd-lib-builder derives the class name
 # from the filename and expects a matching <name>_setup() function.
 class.sources = \
-	display-trace.c
+	display-trace.c \
+	state.c
 
 lib.setup.sources = rose.c
 
