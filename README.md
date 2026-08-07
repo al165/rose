@@ -13,19 +13,22 @@ Requires **Pd 0.55 or newer**.
 ## Layout
 
 ```
-myui/
+rose/
+├── pd-lib-builder/     # git submodule (build system)
 ├── Makefile            # pd-lib-builder wrapper
 ├── *.c                 # the externals
 ├── *-help.pd           # help files
+├── rose.c
+├── rose_common.c       # common functions and defines
 ├── README.md
-├── rose_test_patch.pd  # testing ground for objects
-└── pd-lib-builder/     # git submodule (build system)
+└── rose_test_patch.pd  # testing ground for objects
 ```
 
 ## Build
 
 ```bash
-git clone https://github.com/pure-data/pd-lib-builder.git
+git clone --recursive https://github.com/al165/rose.git
+cd rose
 make
 ```
 
@@ -41,11 +44,11 @@ To generate `compile_commands.json`, runs `$ bear -- make`
 ## Install
 
 ```bash
-make install objectsdir=~/.local/lib/pd/extra
+make install objectsdir=$HOME/.local/lib/pd/extra
 ```
 
 Then in Pd: _Preferences → Path_ should include `~/.local/lib/pd/extra`, and
-`~/.local/lib/pd/extra/myui` will be found automatically.
+`~/.local/lib/pd/extra/rose` will be found automatically.
 
 To test without installing, just open a patch saved in this directory — Pd
 searches the patch's own folder first.

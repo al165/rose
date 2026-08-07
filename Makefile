@@ -23,6 +23,7 @@ lib.setup.sources = rose.c
 # extra files copied on `make install`
 datafiles = \
 	display-trace-help.pd \
+	state-help.pd \
 	README.md
 
 # where pd-lib-builder lives
