@@ -16,6 +16,7 @@ lib.name = rose
 # from the filename and expects a matching <name>_setup() function.
 class.sources = \
 	display-trace.c \
+	list-rescale.c \
 	state.c
 
 lib.setup.sources = rose.c
@@ -23,6 +24,7 @@ lib.setup.sources = rose.c
 # extra files copied on `make install`
 datafiles = \
 	display-trace-help.pd \
+	list-rescale-help.pd \
 	state-help.pd \
 	README.md
 

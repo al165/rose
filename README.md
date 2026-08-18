@@ -9,6 +9,7 @@ Requires **Pd 0.55 or newer**. Built with [pd-lib-builder](https://github.com/pu
 - `[display-trace]`: displays message bursts (multi-line) with timeout before resetting.
 - `[state]`: displays the latest messages of the form `[key values...(` and updates
   previous entries
+- `[list-rescale`: element-wise rescale of values
 
 ## Layout
 
