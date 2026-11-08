@@ -1,0 +1,17 @@
+#N canvas 855 578 507 411 12;
+#X text 49 35 getenv - get system environment variables;
+#X text 49 163 Creation arguments: [getenv <var_name> <fallback>];
+#X msg 91 224 PWD;
+#X msg 105 253 USER;
+#X msg 121 283 PORT 8001;
+#X obj 91 341 print;
+#X text 49 136 Automatically converts numeric values to floats.;
+#X text 48 74 A bang outputs the value of <var_name> if set \, otherwise <fallback>. A list will set the name and optional fallback and output the result;
+#X obj 57 283 bng 20 250 50 0 empty empty empty 0 -10 0 12 #fcfcfc #000000 #000000;
+#X text 222 267 Launch Pd with `$ PORT=5000 pd` and check this variable, f 32;
+#X obj 91 316 rose/getenv USER foo;
+#X connect 2 0 10 0;
+#X connect 3 0 10 0;
+#X connect 4 0 10 0;
+#X connect 8 0 10 0;
+#X connect 10 0 5 0;

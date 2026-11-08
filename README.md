@@ -1,6 +1,6 @@
 # rose
 
-A small collection of useful [PureData](https://puredata.info/) objects.
+A small collection of useful [Pure Data](https://puredata.info/) objects.
 
 Requires **Pd 0.55 or newer**. Built with [pd-lib-builder](https://github.com/pure-data/pd-lib-builder).
 
@@ -9,7 +9,8 @@ Requires **Pd 0.55 or newer**. Built with [pd-lib-builder](https://github.com/pu
 - `[display-trace]`: displays message bursts (multi-line) with timeout before resetting.
 - `[state]`: displays the latest messages of the form `[key values...(` and updates
   previous entries
-- `[list-rescale`: element-wise rescale of values
+- `[list-rescale]`: element-wise rescale of values
+- `[getenv]`: get environment variable
 
 ## Layout
 

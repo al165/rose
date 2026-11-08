@@ -17,7 +17,8 @@ lib.name = rose
 class.sources = \
 	display-trace.c \
 	list-rescale.c \
-	state.c
+	state.c \
+	getenv.c
 
 lib.setup.sources = rose.c
 
@@ -26,6 +27,7 @@ datafiles = \
 	display-trace-help.pd \
 	list-rescale-help.pd \
 	state-help.pd \
+	getenv-help.pd \
 	README.md
 
 # where pd-lib-builder lives
