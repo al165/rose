@@ -78,6 +78,12 @@ jobs:
         with:
           submodules: true
 
+      - name: Fetch pd dependency
+        run: |
+          mkdir -p third_party
+          curl -fsSL -o third_party/m_pd.h \
+            https://raw.githubusercontent.com/pure-data/pure-data/refs/heads/master/src/m_pd.h
+
       # 2. Install the cross-compiler for this architecture, plus QEMU
       #    (an emulator) so we can actually run the foreign binary as a test.
       #    `run:` executes shell commands. `${{ ... }}` inserts a value.
@@ -103,7 +109,7 @@ jobs:
       #    If you use CMake instead, this would be:
       #      cmake -B build -DCMAKE_C_COMPILER=${{ matrix.cc }} && cmake --build build
       - name: Build
-        run: make CC=${{ matrix.cc }} VERSION="$VERSION"
+        run: make PDINCLUDEDIR=third_party/ CC=${{ matrix.cc }} VERSION="$VERSION"
 
       # 5. Sanity checks: `file` prints which CPU the binary is for, and we
       #    run it (through QEMU for non-x86 targets). If it crashes, the
