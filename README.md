@@ -4,6 +4,8 @@ A small collection of useful [Pure Data](https://puredata.info/) objects.
 
 Requires **Pd 0.55 or newer**. Built with [pd-lib-builder](https://github.com/pure-data/pd-lib-builder).
 
+[![Build & Release](https://github.com/al165/rose/actions/workflows/release.yml/badge.svg)](https://github.com/al165/rose/actions/workflows/release.yml)
+
 ## List of objects
 
 - `[display-trace]`: displays message bursts (multi-line) with timeout before resetting.
