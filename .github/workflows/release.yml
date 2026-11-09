@@ -1,0 +1,180 @@
+# =============================================================================
+# Build a C project for several Linux architectures and publish a GitHub
+# Release when a version tag (e.g. v1.0.0) is pushed.
+#
+# Put this file at:  .github/workflows/release.yml   in your repository.
+# GitHub picks up every .yml file in .github/workflows/ automatically.
+# =============================================================================
+
+# The name shown in the "Actions" tab of your repository.
+name: Build & Release
+
+# -----------------------------------------------------------------------------
+# WHEN does this workflow run?  ("triggers")
+# -----------------------------------------------------------------------------
+on:
+  # Every push to main: build only (a quick "does it still compile?" check).
+  push:
+    branches: [main]
+    # Pushing a tag that starts with "v" also triggers the workflow.
+    # That is the signal to build AND publish a release.
+    tags: ['v*']
+  # Every pull request: build only, so broken code is caught before merging.
+  pull_request:
+  # Adds a "Run workflow" button in the Actions tab for manual runs.
+  workflow_dispatch:
+
+# -----------------------------------------------------------------------------
+# Permissions given to the automatic GITHUB_TOKEN. Start with read-only;
+# the release job below asks for write access only where it needs it.
+# -----------------------------------------------------------------------------
+permissions:
+  contents: read
+
+jobs:
+  # ===========================================================================
+  # JOB 1: build
+  # A "matrix" runs this same job several times in parallel, once per entry
+  # in `include`. Each entry is one target architecture.
+  # ===========================================================================
+  build:
+    # Display name in the UI, e.g. "build (aarch64)".
+    name: build (${{ matrix.arch }})
+
+    # The virtual machine GitHub gives us. It is an x86_64 Ubuntu box; we
+    # build for the other architectures by CROSS-COMPILING (using a compiler
+    # that runs on x86_64 but produces code for ARM, RISC-V, ...).
+    runs-on: ubuntu-24.04
+
+    strategy:
+      # If one architecture fails, let the others finish so you see all errors.
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            cc: gcc                       # the normal native compiler
+            pkg: ''                       # nothing extra to install
+            run: ''                       # runs natively, no emulator needed
+          - arch: aarch64                 # 64-bit ARM (Raspberry Pi 4/5 64-bit, AWS Graviton...)
+            cc: aarch64-linux-gnu-gcc
+            pkg: gcc-aarch64-linux-gnu
+            run: qemu-aarch64
+          - arch: armv7                   # 32-bit ARM with hardware float (older Raspberry Pi OS)
+            cc: arm-linux-gnueabihf-gcc
+            pkg: gcc-arm-linux-gnueabihf
+            run: qemu-arm
+          - arch: riscv64
+            cc: riscv64-linux-gnu-gcc
+            pkg: gcc-riscv64-linux-gnu
+            run: qemu-riscv64
+
+    # A job is a list of steps that run in order on the same machine.
+    steps:
+      # 1. Download your repository's code onto the runner.
+      #    `uses:` runs a pre-made "action" published by someone else
+      #    (here: GitHub itself). @v6 is the major version.
+      - name: Check out code
+        uses: actions/checkout@v6
+
+      # 2. Install the cross-compiler for this architecture, plus QEMU
+      #    (an emulator) so we can actually run the foreign binary as a test.
+      #    `run:` executes shell commands. `${{ ... }}` inserts a value.
+      - name: Install cross-compiler
+        if: matrix.pkg != ''
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ${{ matrix.pkg }} qemu-user
+
+      # 3. Work out a version string. On a tag push, GITHUB_REF_NAME is the
+      #    tag (e.g. "v1.2.0"); otherwise use the short commit hash.
+      #    Writing NAME=value to $GITHUB_ENV makes it an environment
+      #    variable for all LATER steps in this job.
+      - name: Determine version
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            echo "VERSION=$GITHUB_REF_NAME" >> "$GITHUB_ENV"
+          else
+            echo "VERSION=dev-${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+          fi
+
+      # 4. Compile. We only override CC; everything else is in the Makefile.
+      #    If you use CMake instead, this would be:
+      #      cmake -B build -DCMAKE_C_COMPILER=${{ matrix.cc }} && cmake --build build
+      - name: Build
+        run: make CC=${{ matrix.cc }} VERSION="$VERSION"
+
+      # 5. Sanity checks: `file` prints which CPU the binary is for, and we
+      #    run it (through QEMU for non-x86 targets). If it crashes, the
+      #    step fails and the whole job is marked red.
+      # - name: Smoke test
+      #   run: |
+      #     file state.pd_linux
+      #     ${{ matrix.run }} ./state.pd_linux
+
+      # 6. Package the binary as a .tar.gz with a checksum file, named so
+      #    users can tell the architectures apart on the release page.
+      - name: Package
+        run: |
+          NAME="rose-${VERSION}-linux-${{ matrix.arch }}"
+          mkdir -p "dist/$NAME"
+          #cp hello-c README* LICENSE* "dist/$NAME/" 2>/dev/null || cp hello-c "dist/$NAME/"
+          make install objectsdir=dist/$NAME
+          tar -C dist -czf "dist/$NAME.tar.gz" "$NAME"
+          (cd dist && sha256sum "$NAME.tar.gz" > "$NAME.tar.gz.sha256")
+
+      # 7. Each job runs on its own fresh machine, and that machine is thrown
+      #    away afterwards. To hand files to another job we upload them as an
+      #    "artifact" (temporary storage attached to this workflow run; you
+      #    can also download them by hand from the run's summary page).
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: rose-linux-${{ matrix.arch }}   # must be unique per matrix entry
+          path: |
+            dist/*.tar.gz
+            dist/*.sha256
+
+  # ===========================================================================
+  # JOB 2: release
+  # Collects all the build outputs and publishes a GitHub Release.
+  # ===========================================================================
+  release:
+    # Wait until ALL matrix builds have succeeded. If any failed, no release.
+    needs: build
+
+    # Only run for tag pushes like "v1.0.0", not for normal pushes or PRs.
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    runs-on: ubuntu-24.04
+
+    # Creating a release writes to the repository, so this job needs
+    # write permission on "contents".
+    permissions:
+      contents: write
+
+    steps:
+      # Download every artifact uploaded by the build jobs into ./dist.
+      # merge-multiple puts all files in one folder instead of one per artifact.
+      - name: Download build artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: List files
+        run: ls -l dist
+
+      # `gh` is GitHub's command-line tool, preinstalled on the runners.
+      # It needs a token (GH_TOKEN) and to know which repo (GH_REPO), since
+      # we never checked the code out in this job.
+      #   --generate-notes  writes release notes from merged PRs / commits
+      #   --verify-tag      refuse to create a tag if it doesn't already exist
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" dist/* \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            --verify-tag
