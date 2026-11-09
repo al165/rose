@@ -103,7 +103,7 @@ jobs:
       #    If you use CMake instead, this would be:
       #      cmake -B build -DCMAKE_C_COMPILER=${{ matrix.cc }} && cmake --build build
       - name: Build
-        run: make CC=${{ matrix.cc }} VERSION="$VERSION"
+        run: make PDDIR=pure-data/ CC=${{ matrix.cc }} VERSION="$VERSION"
 
       # 5. Sanity checks: `file` prints which CPU the binary is for, and we
       #    run it (through QEMU for non-x86 targets). If it crashes, the
